@@ -23,6 +23,7 @@ class LoginView(View):
                 return redirect('store:shop')
         return redirect('login:login')
 
+
 class LogoutView(View):
    def get(self, request):
        if request.user.is_authenticated:
@@ -30,11 +31,9 @@ class LogoutView(View):
        return redirect('store:shop')
 
 
-
 class CreateAccountView(View):
    def get(self, request):
        return render(request, "login/create_account.html")
-
 
    def post(self, request):
        form = CustomUserCreationForm(data=request.POST)
