@@ -2,10 +2,11 @@ from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.db.models import OuterRef, Subquery, F, ExpressionWrapper, DecimalField, Case, When
 from django.utils import timezone
-from .models import Product, Discount, Cart
+from .models import Product, Discount, Cart, Wishlist
 from rest_framework import viewsets, response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import CartSerializer
+from .serializers import CartSerializer, WishlistSerializer
+from django.shortcuts import redirect
 # Create your views here.
 
 
@@ -106,4 +107,21 @@ class ShopView(View):
                  'discount_value')
         return render(request, 'store/shop.html', {"data": products})
 
+class WishlistView(View):
 
+
+   def get(self, request):
+       if request.user.is_authenticated:
+           # код который необходим для обработчика
+           return render(request, "store/wishlist.html")
+       # Иначе отправляет авторизироваться
+       return redirect('login:login')
+
+
+class WishlistViewSet(viewsets.ModelViewSet):
+    queryset = Wishlist.objects.all()
+    serializer_class = WishlistSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)

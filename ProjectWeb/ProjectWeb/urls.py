@@ -17,14 +17,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from store.urls import router as cart_router
+from store.urls import router as wishlist_router
 
 
 
 urlpatterns = [
-    path('grappelli/', include('grappelli.urls')),
+    #path('grappelli/', include('grappelli.urls')),
     path('admin/', admin.site.urls),
     path('other/', include('other.urls')),
     path('login/', include('login.urls')),
     path('', include('store.urls')),
     path('api/', include(cart_router.urls)),
+    path('api/', include(wishlist_router.urls)),
+
 ]
