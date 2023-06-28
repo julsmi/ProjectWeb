@@ -111,11 +111,12 @@ class WishlistView(View):
 
 
    def get(self, request):
-       if request.user.is_authenticated:
+        if request.user.is_authenticated:
+            wish = Wishlist.objects.filter(user=request.user).annotate(total_price=F('product__price'))
            # код который необходим для обработчика
-           return render(request, "store/wishlist.html")
+            return render(request, "store/wishlist.html", {"data": wish})
        # Иначе отправляет авторизироваться
-       return redirect('login:login')
+        return redirect('login:login')
 
 
 class WishlistViewSet(viewsets.ModelViewSet):
@@ -125,3 +126,29 @@ class WishlistViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+
+        wishlist_items = self.get_queryset().filter(product__id=request.data.get('product'))
+
+        if wishlist_items:
+            wishlist_item = wishlist_items[0]
+        else:
+            product = get_object_or_404(Product, id=request.data.get('product'))
+            wishlist_item = Wishlist(user=request.user, product=product)
+        wishlist_item.save()
+        return response.Response({'message': 'Product added to wishlist'})
+
+    def update(self, request, *args, **kwargs):
+        wishlist_item = get_object_or_404(Cart, id=kwargs['pk'])
+        if request.data.get('product'):
+            product = get_object_or_404(Product, id=request.data['product'])
+            wishlist_item.product = product
+        wishlist_item.save()
+        return response.Response({'message': 'Product changed in wishlist'}, status=201)
+
+    def destroy(self, request, *args, **kwargs):
+        wishlist_item = self.get_queryset().get(id=kwargs['pk'])
+        wishlist_item.delete()
+        return response.Response({'message': 'Product delete from wishlist'}, status=201)
+
