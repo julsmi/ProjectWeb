@@ -34,5 +34,5 @@ jobs:
 #       run: env
     - name: Run Tests
       run: |
-        python manage.py test
+        python ProjectWeb/manage.py test
 
